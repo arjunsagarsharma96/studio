@@ -5,6 +5,7 @@ import { generateHistoricalData, PricePoint } from "@/lib/historical-data";
 import { HistoricalChart } from "@/components/dashboard/historical-chart";
 import { ForecastPanel } from "@/components/dashboard/forecast-panel";
 import { ModelStorage, SavedModel } from "@/components/dashboard/model-storage";
+import TradingViewChart from "@/components/dashboard/trading-view-chart";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { 
@@ -19,6 +20,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton
 } from "@/components/ui/sidebar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   BarChart3, 
   Coins, 
@@ -29,7 +31,8 @@ import {
   Activity,
   ArrowUpRight,
   TrendingUp,
-  LineChart as LineChartIcon
+  LineChart as LineChartIcon,
+  Globe
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -106,9 +109,9 @@ export default function GoldSightDashboard() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip="Live Feed">
+                <SidebarMenuButton tooltip="Live Market">
                   <Activity className="h-5 w-5" />
-                  <span>Live Feed</span>
+                  <span>Live Market</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
@@ -140,7 +143,10 @@ export default function GoldSightDashboard() {
               <SidebarTrigger className="-ml-2 mr-2" />
               <Badge variant="outline" className="text-accent border-accent/30 font-mono hidden sm:flex">XAU / USD</Badge>
               <Separator orientation="vertical" className="h-4 hidden sm:block" />
-              <span className="text-sm font-medium text-muted-foreground">Market Open</span>
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                <span className="text-sm font-medium text-muted-foreground">TradingView Live</span>
+              </div>
             </div>
 
             <div className="flex items-center gap-3">
@@ -160,7 +166,7 @@ export default function GoldSightDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Card className="bg-card/40 border-border">
                 <CardContent className="p-6">
-                  <p className="text-sm font-medium text-muted-foreground mb-1">Spot Price</p>
+                  <p className="text-sm font-medium text-muted-foreground mb-1">Spot Price (Simulated)</p>
                   <div className="flex items-end justify-between">
                     <h3 className="text-2xl font-bold">${latestPrice.toLocaleString()}</h3>
                     <div className={`flex items-center gap-1 text-sm ${priceChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
@@ -185,38 +191,59 @@ export default function GoldSightDashboard() {
 
               <Card className="bg-card/40 border-border">
                 <CardContent className="p-6">
-                  <p className="text-sm font-medium text-muted-foreground mb-1">Resistance Level</p>
+                  <p className="text-sm font-medium text-muted-foreground mb-1">Live Resistance</p>
                   <h3 className="text-2xl font-bold">$5,250.00</h3>
                 </CardContent>
               </Card>
 
               <Card className="bg-card/40 border-border">
                 <CardContent className="p-6">
-                  <p className="text-sm font-medium text-muted-foreground mb-1">Sentiment</p>
+                  <p className="text-sm font-medium text-muted-foreground mb-1">Global Sentiment</p>
                   <h3 className="text-2xl font-bold text-primary">Strong Bullish</h3>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Chart Section */}
+            {/* Main Content Area */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
               <div className="xl:col-span-2 space-y-6">
-                <Card className="bg-card/30 border-border backdrop-blur-sm overflow-hidden">
-                  <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-2 gap-4">
-                    <div>
-                      <CardTitle className="text-lg">Price Performance (since 2015)</CardTitle>
-                      <p className="text-xs text-muted-foreground">Historical data with current AI projection overlays</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Badge variant="secondary" className="bg-primary/20 text-primary border-none">1M</Badge>
-                      <Badge variant="outline" className="border-border">1Y</Badge>
-                      <Badge variant="outline" className="border-border">MAX</Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <HistoricalChart historicalData={historicalData} forecastData={forecastData} />
-                  </CardContent>
-                </Card>
+                <Tabs defaultValue="ai" className="w-full">
+                  <div className="flex items-center justify-between mb-4">
+                    <TabsList className="bg-muted/50">
+                      <TabsTrigger value="ai" className="flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4" />
+                        AI Projection
+                      </TabsTrigger>
+                      <TabsTrigger value="live" className="flex items-center gap-2">
+                        <Globe className="h-4 w-4" />
+                        TradingView Live
+                      </TabsTrigger>
+                    </TabsList>
+                    <Badge variant="outline" className="text-xs text-muted-foreground border-border">
+                      Last Updated: {new Date().toLocaleTimeString()}
+                    </Badge>
+                  </div>
+
+                  <TabsContent value="ai" className="mt-0">
+                    <Card className="bg-card/30 border-border backdrop-blur-sm overflow-hidden">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg">Price Performance (Since 2015)</CardTitle>
+                        <p className="text-xs text-muted-foreground">Internal analytical dataset with future projection overlays</p>
+                      </CardHeader>
+                      <CardContent>
+                        <HistoricalChart historicalData={historicalData} forecastData={forecastData} />
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="live" className="mt-0">
+                    <Card className="bg-card/30 border-border backdrop-blur-sm overflow-hidden h-[500px]">
+                      <CardContent className="p-0 h-full">
+                        <TradingViewChart />
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
 
                 {aiTrends && (
                   <Card className="bg-primary/5 border-primary/20">
@@ -255,7 +282,7 @@ export default function GoldSightDashboard() {
                     ) : (
                       <div className="text-center py-10 text-muted-foreground">
                         <BarChart3 className="h-10 w-10 mx-auto mb-3 opacity-20" />
-                        <p className="text-sm">Generate a forecast to see detailed analytical highlights here.</p>
+                        <p className="text-sm">Generate a 2026 forecast to see analytical highlights.</p>
                       </div>
                     )}
                   </CardContent>

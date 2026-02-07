@@ -4,8 +4,8 @@ export interface PricePoint {
 }
 
 /**
- * Generates realistic historical XAUUSD data from 2015 to today.
- * Adjusted to reach the user's requested high of ~$4,900.
+ * Generates realistic historical XAUUSD data from 2015 to exactly Today.
+ * Synchronized with the user's requested high of ~$4,900.
  */
 export function generateHistoricalData(): PricePoint[] {
   const startDate = new Date(2015, 0, 1);
@@ -16,8 +16,7 @@ export function generateHistoricalData(): PricePoint[] {
   let currentPrice = 1180;
   const currentDate = new Date(startDate);
 
-  // Helper to get target price based on year to simulate historical trends
-  // Adjusted targets to reach ~$4,900 by present day
+  // Helper to get target price based on year to simulate requested trends
   const getTargetPrice = (year: number) => {
     if (year <= 2016) return 1250;
     if (year <= 2018) return 1350;
@@ -25,7 +24,7 @@ export function generateHistoricalData(): PricePoint[] {
     if (year <= 2022) return 1950;
     if (year <= 2023) return 2100;
     if (year <= 2024) return 3800;
-    return 4900; // Targeting user's requested current price
+    return 4900; // Targeting user's requested market level
   };
 
   while (currentDate <= today) {
@@ -41,11 +40,11 @@ export function generateHistoricalData(): PricePoint[] {
     // Minimum price floor
     if (currentPrice < 1000) currentPrice = 1000;
 
-    // To keep the chart performant, we use monthly points for older data 
-    // and daily points for the last 90 days.
+    // Daily points for the last 120 days to ensure "up to date" look
+    // Monthly points for older history to save performance
     const diffDays = Math.floor((today.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
     
-    if (diffDays < 90 || currentDate.getDate() === 1) {
+    if (diffDays < 120 || currentDate.getDate() === 1) {
       data.push({
         date: currentDate.toISOString().split('T')[0],
         price: parseFloat(currentPrice.toFixed(2)),
@@ -56,9 +55,10 @@ export function generateHistoricalData(): PricePoint[] {
     currentDate.setDate(currentDate.getDate() + 1);
   }
 
-  // Explicitly ensure the last point is "Today"
+  // FORCE the final point to be Today's actual date
   const lastDateStr = today.toISOString().split('T')[0];
-  if (data.length > 0 && data[data.length - 1].date !== lastDateStr) {
+  const lastPoint = data[data.length - 1];
+  if (lastPoint && lastPoint.date !== lastDateStr) {
     data.push({
       date: lastDateStr,
       price: parseFloat(currentPrice.toFixed(2)),
