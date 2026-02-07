@@ -1,15 +1,10 @@
-
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
   AreaChart,
   Area,
   ReferenceLine,
@@ -23,21 +18,47 @@ interface HistoricalChartProps {
 }
 
 export function HistoricalChart({ historicalData, forecastData = [] }: HistoricalChartProps) {
-  const combinedData = [
-    ...historicalData.map(d => ({ ...d, type: "historical" })),
-    ...forecastData.map(d => ({ ...d, type: "forecast" }))
-  ];
+  const combinedData = useMemo(() => {
+    // We want a single data stream for the AreaChart
+    // Historical points get 'price', Forecast points get 'forecastPrice'
+    // To connect the lines, the first forecast point should overlap with the last historical point if possible
+    
+    const hData = historicalData.map(d => ({ 
+      date: d.date, 
+      price: d.price,
+      type: 'historical' 
+    }));
+
+    const fData = forecastData.map(d => ({ 
+      date: d.date, 
+      forecastPrice: d.price,
+      type: 'forecast' 
+    }));
+
+    // If we have forecast data, we need the last historical point to also have forecastPrice 
+    // so the line is continuous
+    if (fData.length > 0 && hData.length > 0) {
+      const lastH = hData[hData.length - 1];
+      fData.unshift({
+        date: lastH.date,
+        forecastPrice: lastH.price,
+        type: 'forecast'
+      });
+    }
+
+    return [...hData, ...fData];
+  }, [historicalData, forecastData]);
 
   return (
-    <div className="h-[400px] w-full bg-card rounded-xl p-4 border border-border shadow-2xl">
+    <div className="h-[400px] w-full bg-card/10 rounded-xl p-2 border border-border/50">
       <ChartContainer
         config={{
           price: {
-            label: "Price (XAU/USD)",
+            label: "Historical (XAU/USD)",
             color: "hsl(var(--primary))",
           },
-          forecast: {
-            label: "Forecast",
+          forecastPrice: {
+            label: "AI Forecast",
             color: "hsl(var(--accent))",
           }
         }}
@@ -59,14 +80,15 @@ export function HistoricalChart({ historicalData, forecastData = [] }: Historica
             dataKey="date" 
             axisLine={false} 
             tickLine={false} 
-            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
             minTickGap={60}
           />
           <YAxis 
             axisLine={false} 
             tickLine={false} 
-            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
             domain={['auto', 'auto']}
+            tickFormatter={(value) => `$${value}`}
           />
           <ChartTooltip content={<ChartTooltipContent />} />
           <Area 
@@ -78,20 +100,23 @@ export function HistoricalChart({ historicalData, forecastData = [] }: Historica
             fill="url(#colorPrice)" 
             isAnimationActive={true}
           />
-          {forecastData.length > 0 && (
-            <Area 
-              type="monotone" 
-              dataKey="price" 
-              stroke="hsl(var(--accent))" 
-              strokeWidth={2}
-              strokeDasharray="5 5"
-              fillOpacity={0.4} 
-              fill="url(#colorForecast)" 
-              connectNulls
-            />
-          )}
+          <Area 
+            type="monotone" 
+            dataKey="forecastPrice" 
+            stroke="hsl(var(--accent))" 
+            strokeWidth={2}
+            strokeDasharray="5 5"
+            fillOpacity={0.4} 
+            fill="url(#colorForecast)" 
+            isAnimationActive={true}
+          />
           {historicalData.length > 0 && (
-            <ReferenceLine x={historicalData[historicalData.length - 1].date} stroke="hsl(var(--muted-foreground))" strokeDasharray="3 3" label={{ position: 'top', value: 'Today', fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
+            <ReferenceLine 
+              x={historicalData[historicalData.length - 1].date} 
+              stroke="hsl(var(--muted-foreground))" 
+              strokeDasharray="3 3" 
+              label={{ position: 'top', value: 'Present', fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} 
+            />
           )}
         </AreaChart>
       </ChartContainer>

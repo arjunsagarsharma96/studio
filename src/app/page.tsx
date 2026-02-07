@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -8,12 +7,22 @@ import { ForecastPanel } from "@/components/dashboard/forecast-panel";
 import { ModelStorage, SavedModel } from "@/components/dashboard/model-storage";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { 
+  SidebarProvider, 
+  SidebarInset, 
+  SidebarTrigger, 
+  Sidebar, 
+  SidebarHeader, 
+  SidebarContent, 
+  SidebarFooter,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton
+} from "@/components/ui/sidebar";
 import { 
   BarChart3, 
   Coins, 
   Download, 
-  HelpCircle, 
   LayoutDashboard, 
   Settings, 
   Save,
@@ -77,177 +86,186 @@ export default function GoldSightDashboard() {
   const priceChangePercent = (priceChange / prevPrice) * 100;
 
   return (
-    <div className="flex min-h-screen bg-[#191970] font-body text-foreground">
-      {/* Sidebar - Simulated Navigation */}
-      <aside className="w-64 border-r border-border bg-card/30 backdrop-blur-xl hidden lg:flex flex-col">
-        <div className="p-6">
-          <div className="flex items-center gap-2 mb-8">
-            <div className="h-10 w-10 gold-gradient rounded-lg flex items-center justify-center shadow-lg shadow-primary/20">
-              <Coins className="text-primary-foreground h-6 w-6" />
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full bg-background font-body text-foreground">
+        <Sidebar collapsible="icon">
+          <SidebarHeader className="p-4">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 gold-gradient rounded flex items-center justify-center shrink-0">
+                <Coins className="text-primary-foreground h-5 w-5" />
+              </div>
+              <h1 className="text-lg font-bold tracking-tight gold-text-gradient group-data-[collapsible=icon]:hidden">GoldSight</h1>
             </div>
-            <h1 className="text-xl font-bold tracking-tight gold-text-gradient">GoldSight</h1>
-          </div>
+          </SidebarHeader>
+          <SidebarContent className="px-2">
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton isActive tooltip="Dashboard">
+                  <LayoutDashboard className="h-5 w-5" />
+                  <span>Dashboard</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton tooltip="Live Feed">
+                  <Activity className="h-5 w-5" />
+                  <span>Live Feed</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton tooltip="Backtesting">
+                  <LineChartIcon className="h-5 w-5" />
+                  <span>Backtesting</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton tooltip="Settings">
+                  <Settings className="h-5 w-5" />
+                  <span>Settings</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarContent>
+          <SidebarFooter className="p-4 group-data-[collapsible=icon]:hidden">
+            <ModelStorage 
+              models={savedModels} 
+              onDelete={handleDeleteModel} 
+              onSelect={(m) => toast({ title: "Model Loaded", description: `Active model: ${m.name}` })}
+            />
+          </SidebarFooter>
+        </Sidebar>
 
-          <nav className="space-y-1">
-            <Button variant="ghost" className="w-full justify-start text-primary bg-primary/10">
-              <LayoutDashboard className="mr-3 h-5 w-5" />
-              Dashboard
-            </Button>
-            <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-foreground">
-              <Activity className="mr-3 h-5 w-5" />
-              Live Feed
-            </Button>
-            <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-foreground">
-              <LineChartIcon className="mr-3 h-5 w-5" />
-              Backtesting
-            </Button>
-            <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-foreground">
-              <Settings className="mr-3 h-5 w-5" />
-              Settings
-            </Button>
-          </nav>
-        </div>
+        <SidebarInset className="flex flex-col flex-1 min-w-0">
+          <header className="h-16 border-b border-border bg-card/20 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-10">
+            <div className="flex items-center gap-4">
+              <SidebarTrigger className="-ml-2 mr-2" />
+              <Badge variant="outline" className="text-accent border-accent/30 font-mono hidden sm:flex">XAU / USD</Badge>
+              <Separator orientation="vertical" className="h-4 hidden sm:block" />
+              <span className="text-sm font-medium text-muted-foreground">Market Open</span>
+            </div>
 
-        <div className="mt-auto p-4">
-          <ModelStorage 
-            models={savedModels} 
-            onDelete={handleDeleteModel} 
-            onSelect={(m) => toast({ title: "Model Loaded", description: `Active model: ${m.name}` })}
-          />
-        </div>
-      </aside>
+            <div className="flex items-center gap-3">
+              <Button variant="outline" size="sm" className="border-border hover:bg-muted" onClick={handleSaveModel}>
+                <Save className="mr-2 h-4 w-4 text-primary" />
+                <span className="hidden sm:inline">Save Model</span>
+              </Button>
+              <Button variant="default" size="sm" className="bg-primary text-primary-foreground font-bold shadow-lg shadow-primary/20">
+                <Download className="mr-2 h-4 w-4" />
+                <span className="hidden sm:inline">Export Report</span>
+              </Button>
+            </div>
+          </header>
 
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 border-b border-border bg-card/20 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-10">
-          <div className="flex items-center gap-4">
-            <Badge variant="outline" className="text-accent border-accent/30 font-mono">XAU / USD</Badge>
-            <Separator orientation="vertical" className="h-4" />
-            <span className="text-sm font-medium text-muted-foreground">Market Open</span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm" className="border-border hover:bg-muted" onClick={handleSaveModel}>
-              <Save className="mr-2 h-4 w-4 text-primary" />
-              Save Model
-            </Button>
-            <Button variant="default" size="sm" className="bg-primary text-primary-foreground font-bold shadow-lg shadow-primary/20">
-              <Download className="mr-2 h-4 w-4" />
-              Export PDF
-            </Button>
-          </div>
-        </header>
-
-        <div className="p-6 space-y-6 overflow-y-auto">
-          {/* Market Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="bg-card/40 border-border">
-              <CardContent className="p-6">
-                <p className="text-sm font-medium text-muted-foreground mb-1">Spot Price</p>
-                <div className="flex items-end justify-between">
-                  <h3 className="text-2xl font-bold">${latestPrice.toLocaleString()}</h3>
-                  <div className={`flex items-center gap-1 text-sm ${priceChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    <ArrowUpRight className={`h-4 w-4 ${priceChange < 0 && 'rotate-90'}`} />
-                    {priceChangePercent.toFixed(2)}%
+          <div className="p-6 space-y-6 overflow-y-auto">
+            {/* Market Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Card className="bg-card/40 border-border">
+                <CardContent className="p-6">
+                  <p className="text-sm font-medium text-muted-foreground mb-1">Spot Price</p>
+                  <div className="flex items-end justify-between">
+                    <h3 className="text-2xl font-bold">${latestPrice.toLocaleString()}</h3>
+                    <div className={`flex items-center gap-1 text-sm ${priceChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      <ArrowUpRight className={`h-4 w-4 ${priceChange < 0 && 'rotate-90'}`} />
+                      {priceChangePercent.toFixed(2)}%
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-card/40 border-border">
-              <CardContent className="p-6">
-                <p className="text-sm font-medium text-muted-foreground mb-1">AI 2026 Target</p>
-                <div className="flex items-end justify-between">
-                  <h3 className="text-2xl font-bold text-accent">
-                    {forecastData.length > 0 ? `$${forecastData[forecastData.length - 1].price.toLocaleString()}` : "---"}
-                  </h3>
-                  {forecastData.length > 0 && <TrendingUp className="h-5 w-5 text-accent" />}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-card/40 border-border">
-              <CardContent className="p-6">
-                <p className="text-sm font-medium text-muted-foreground mb-1">Resistance Level</p>
-                <h3 className="text-2xl font-bold">$2,845.50</h3>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-card/40 border-border">
-              <CardContent className="p-6">
-                <p className="text-sm font-medium text-muted-foreground mb-1">Market Sentiment</p>
-                <h3 className="text-2xl font-bold text-primary">Strong Bullish</h3>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Chart Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-6">
-              <Card className="bg-card/30 border-border backdrop-blur-sm overflow-hidden">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <div>
-                    <CardTitle className="text-lg">Price Performance (since 2008)</CardTitle>
-                    <p className="text-xs text-muted-foreground">Historical data with current AI projection overlays</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Badge variant="secondary" className="bg-primary/20 text-primary border-none">1M</Badge>
-                    <Badge variant="outline" className="border-border">1Y</Badge>
-                    <Badge variant="outline" className="border-border">MAX</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <HistoricalChart historicalData={historicalData} forecastData={forecastData} />
                 </CardContent>
               </Card>
 
-              {aiTrends && (
-                <Card className="bg-primary/5 border-primary/20">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2 text-primary">
-                      <TrendingUp className="h-5 w-5" />
-                      AI Market Sentiment Summary
-                    </CardTitle>
+              <Card className="bg-card/40 border-border">
+                <CardContent className="p-6">
+                  <p className="text-sm font-medium text-muted-foreground mb-1">AI 2026 Target</p>
+                  <div className="flex items-end justify-between">
+                    <h3 className="text-2xl font-bold text-accent">
+                      {forecastData.length > 0 ? `$${forecastData[forecastData.length - 1].price.toLocaleString()}` : "---"}
+                    </h3>
+                    {forecastData.length > 0 && <TrendingUp className="h-5 w-5 text-accent" />}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-card/40 border-border">
+                <CardContent className="p-6">
+                  <p className="text-sm font-medium text-muted-foreground mb-1">Resistance Level</p>
+                  <h3 className="text-2xl font-bold">$2,845.50</h3>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-card/40 border-border">
+                <CardContent className="p-6">
+                  <p className="text-sm font-medium text-muted-foreground mb-1">Sentiment</p>
+                  <h3 className="text-2xl font-bold text-primary">Strong Bullish</h3>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Chart Section */}
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+              <div className="xl:col-span-2 space-y-6">
+                <Card className="bg-card/30 border-border backdrop-blur-sm overflow-hidden">
+                  <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-2 gap-4">
+                    <div>
+                      <CardTitle className="text-lg">Price Performance (since 2008)</CardTitle>
+                      <p className="text-xs text-muted-foreground">Historical data with current AI projection overlays</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Badge variant="secondary" className="bg-primary/20 text-primary border-none">1M</Badge>
+                      <Badge variant="outline" className="border-border">1Y</Badge>
+                      <Badge variant="outline" className="border-border">MAX</Badge>
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm leading-relaxed text-foreground/80 italic">
-                      {aiTrends}
-                    </p>
+                    <HistoricalChart historicalData={historicalData} forecastData={forecastData} />
                   </CardContent>
                 </Card>
-              )}
-            </div>
 
-            <div className="space-y-6">
-              <ForecastPanel 
-                historicalData={historicalData} 
-                onForecastGenerated={handleForecastGenerated} 
-              />
-              
-              <Card className="bg-card/40 border-border">
-                <CardHeader>
-                  <CardTitle className="text-lg">Project Highlights</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {forecastSummary ? (
-                    <div className="prose prose-sm prose-invert">
-                      <p className="text-sm text-muted-foreground">
-                        {forecastSummary}
+                {aiTrends && (
+                  <Card className="bg-primary/5 border-primary/20">
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2 text-primary">
+                        <TrendingUp className="h-5 w-5" />
+                        AI Market Sentiment Summary
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm leading-relaxed text-foreground/80 italic">
+                        {aiTrends}
                       </p>
-                    </div>
-                  ) : (
-                    <div className="text-center py-10 text-muted-foreground">
-                      <BarChart3 className="h-10 w-10 mx-auto mb-3 opacity-20" />
-                      <p className="text-sm">Generate a forecast to see detailed analytical highlights here.</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+
+              <div className="space-y-6">
+                <ForecastPanel 
+                  historicalData={historicalData} 
+                  onForecastGenerated={handleForecastGenerated} 
+                />
+                
+                <Card className="bg-card/40 border-border">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Forecast Insights</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {forecastSummary ? (
+                      <div className="prose prose-sm prose-invert">
+                        <p className="text-sm text-muted-foreground whitespace-pre-line">
+                          {forecastSummary}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="text-center py-10 text-muted-foreground">
+                        <BarChart3 className="h-10 w-10 mx-auto mb-3 opacity-20" />
+                        <p className="text-sm">Generate a forecast to see detailed analytical highlights here.</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </div>
-        </div>
-      </main>
+        </SidebarInset>
+      </div>
       <Toaster />
-    </div>
+    </SidebarProvider>
   );
 }
