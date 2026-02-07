@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState } from "react";
@@ -66,7 +65,7 @@ export function ForecastPanel({ historicalData, onForecastGenerated }: ForecastP
           <Badge variant="outline" className="border-primary text-primary">v2.5 Flash</Badge>
         </div>
         <CardDescription>
-          Generate XAUUSD price forecasts up to 2026 based on patterns from 2008-present.
+          Generate XAUUSD price forecasts up to 2026 based on patterns from 2015-present.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -80,7 +79,7 @@ export function ForecastPanel({ historicalData, onForecastGenerated }: ForecastP
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">
             <label className="text-xs font-semibold text-muted-foreground uppercase">Dataset Scope</label>
-            <p className="text-sm font-medium">2008 - {new Date().getFullYear()}</p>
+            <p className="text-sm font-medium">2015 - {new Date().getFullYear()}</p>
           </div>
           <div className="space-y-1">
             <label className="text-xs font-semibold text-muted-foreground uppercase">Target Horizon</label>

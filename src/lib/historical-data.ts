@@ -4,31 +4,28 @@ export interface PricePoint {
 }
 
 /**
- * Generates realistic historical XAUUSD data from 2008 to today.
- * Adjusted to reach the current historical highs.
- * - 2008: ~$800
- * - 2011: ~$1900
- * - 2015: ~$1100
- * - 2020: ~$2000
- * - 2024/2025: Scaling towards ~$2900+
+ * Generates realistic historical XAUUSD data from 2015 to today.
+ * Adjusted to reach the user's requested high of ~$4,900.
  */
 export function generateHistoricalData(): PricePoint[] {
-  const startDate = new Date(2008, 0, 1);
+  const startDate = new Date(2015, 0, 1);
   const today = new Date();
   const data: PricePoint[] = [];
 
-  let currentPrice = 850;
+  // Gold price was around $1,150-$1,200 in early 2015
+  let currentPrice = 1180;
   const currentDate = new Date(startDate);
 
   // Helper to get target price based on year to simulate historical trends
-  // Adjusted targets to reach ~2900 by present day
+  // Adjusted targets to reach ~$4,900 by present day
   const getTargetPrice = (year: number) => {
-    if (year <= 2011) return 1900;
-    if (year <= 2015) return 1100;
-    if (year <= 2018) return 1300;
-    if (year <= 2020) return 2000;
+    if (year <= 2016) return 1250;
+    if (year <= 2018) return 1350;
+    if (year <= 2020) return 2050;
+    if (year <= 2022) return 1950;
     if (year <= 2023) return 2100;
-    return 2950; // Current bull market target scaling higher
+    if (year <= 2024) return 3800;
+    return 4900; // Targeting user's requested current price
   };
 
   while (currentDate <= today) {
@@ -36,13 +33,13 @@ export function generateHistoricalData(): PricePoint[] {
     const target = getTargetPrice(year);
     
     // Calculate a drift towards the target price
-    const drift = (target - currentPrice) / 450; 
-    const volatility = (Math.random() - 0.5) * 12;
+    const drift = (target - currentPrice) / 365; 
+    const volatility = (Math.random() - 0.5) * 15;
     
     currentPrice += drift + volatility;
 
     // Minimum price floor
-    if (currentPrice < 700) currentPrice = 700;
+    if (currentPrice < 1000) currentPrice = 1000;
 
     // To keep the chart performant, we use monthly points for older data 
     // and daily points for the last 90 days.

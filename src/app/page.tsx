@@ -186,7 +186,7 @@ export default function GoldSightDashboard() {
               <Card className="bg-card/40 border-border">
                 <CardContent className="p-6">
                   <p className="text-sm font-medium text-muted-foreground mb-1">Resistance Level</p>
-                  <h3 className="text-2xl font-bold">$2,845.50</h3>
+                  <h3 className="text-2xl font-bold">$5,250.00</h3>
                 </CardContent>
               </Card>
 
@@ -204,7 +204,7 @@ export default function GoldSightDashboard() {
                 <Card className="bg-card/30 border-border backdrop-blur-sm overflow-hidden">
                   <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-2 gap-4">
                     <div>
-                      <CardTitle className="text-lg">Price Performance (since 2008)</CardTitle>
+                      <CardTitle className="text-lg">Price Performance (since 2015)</CardTitle>
                       <p className="text-xs text-muted-foreground">Historical data with current AI projection overlays</p>
                     </div>
                     <div className="flex gap-2">
