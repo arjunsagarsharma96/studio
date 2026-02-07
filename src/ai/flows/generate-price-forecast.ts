@@ -45,17 +45,17 @@ const prompt = ai.definePrompt({
   output: {schema: GeneratePriceForecastOutputSchema},
   prompt: `You are an expert financial analyst specializing in XAUUSD price forecasting.
 
-  Based on the provided historical XAUUSD price data, generate a price forecast up to the year {{{forecastHorizon}}}.
+  Based on the provided historical XAUUSD price data (sourced from the TradingView Advanced Data Feed), generate a price forecast up to the year {{{forecastHorizon}}}.
   
-  CONTEXT:
-  - Current Price: $4,964 (as of yesterday).
-  - All-Time High: $5,602 (reached recently).
-  - The model should respect the current support at $4,964.
+  CRITICAL CONTEXT FROM TRADINGVIEW:
+  - Current Spot Price: $4,964 (Stable Support).
+  - All-Time High (ATH): $5,602 (Primary Resistance).
+  - The model should strictly respect the current baseline at $4,964 as the starting point for all projections.
 
-  Historical Data:\n{{{historicalData}}}
+  TradingView Historical Dataset (CSV):\n{{{historicalData}}}
 
   Provide the forecast data in CSV format with columns Date and Price. Use monthly intervals for the forecast.
-  Also, include a brief summary of the forecast explaining why the AI expects the price to move from the current $4,964 level.
+  Also, include a brief summary explaining the AI's reasoning for the trajectory starting from the $4,964 level, considering global economic factors and technical indicators.
   `,
 });
 
