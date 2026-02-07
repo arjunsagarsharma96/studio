@@ -33,7 +33,8 @@ import {
   TrendingUp,
   LineChart as LineChartIcon,
   Globe,
-  Clock
+  Clock,
+  History
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -69,7 +70,7 @@ export default function GoldSightDashboard() {
     }
     const newModel: SavedModel = {
       id: Math.random().toString(36).substr(2, 9),
-      name: `Gold-2026-Strategy-${savedModels.length + 1}`,
+      name: `XAU-2026-Strat-${savedModels.length + 1}`,
       date: new Date().toLocaleDateString(),
       horizon: 2026
     };
@@ -142,7 +143,7 @@ export default function GoldSightDashboard() {
               <Separator orientation="vertical" className="h-4 hidden sm:block" />
               <div className="flex items-center gap-2">
                 <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-sm font-medium text-muted-foreground">Market Open</span>
+                <span className="text-sm font-medium text-muted-foreground">Market Live</span>
               </div>
             </div>
 
@@ -164,7 +165,7 @@ export default function GoldSightDashboard() {
               <Card className="bg-card/40 border-border">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-2 mb-1">
-                    <p className="text-sm font-medium text-muted-foreground">Spot Price (Live Sim)</p>
+                    <p className="text-sm font-medium text-muted-foreground">Current Price</p>
                     <Clock className="h-3 w-3 text-muted-foreground" />
                   </div>
                   <div className="flex items-end justify-between">
@@ -179,27 +180,30 @@ export default function GoldSightDashboard() {
 
               <Card className="bg-card/40 border-border">
                 <CardContent className="p-6">
-                  <p className="text-sm font-medium text-muted-foreground mb-1">AI 2026 Target</p>
+                  <p className="text-sm font-medium text-muted-foreground mb-1">All-Time High</p>
                   <div className="flex items-end justify-between">
-                    <h3 className="text-2xl font-bold text-accent">
-                      {forecastData.length > 0 ? `$${forecastData[forecastData.length - 1].price.toLocaleString()}` : "---"}
-                    </h3>
-                    {forecastData.length > 0 && <TrendingUp className="h-5 w-5 text-accent" />}
+                    <h3 className="text-2xl font-bold text-primary">$5,602.00</h3>
+                    <History className="h-5 w-5 text-primary opacity-50" />
                   </div>
                 </CardContent>
               </Card>
 
               <Card className="bg-card/40 border-border">
                 <CardContent className="p-6">
-                  <p className="text-sm font-medium text-muted-foreground mb-1">Psychological Resistance</p>
-                  <h3 className="text-2xl font-bold">$5,000.00</h3>
+                  <p className="text-sm font-medium text-muted-foreground mb-1">AI 2026 Projection</p>
+                  <div className="flex items-end justify-between">
+                    <h3 className="text-2xl font-bold text-accent">
+                      {forecastData.length > 0 ? `$${forecastData[forecastData.length - 1].price.toLocaleString()}` : "---"}
+                    </h3>
+                    <TrendingUp className="h-5 w-5 text-accent" />
+                  </div>
                 </CardContent>
               </Card>
 
               <Card className="bg-card/40 border-border">
                 <CardContent className="p-6">
-                  <p className="text-sm font-medium text-muted-foreground mb-1">Analyst Sentiment</p>
-                  <h3 className="text-2xl font-bold text-primary uppercase tracking-wide">Bullish</h3>
+                  <p className="text-sm font-medium text-muted-foreground mb-1">Psychological Barrier</p>
+                  <h3 className="text-2xl font-bold">$6,000.00</h3>
                 </CardContent>
               </Card>
             </div>
@@ -216,11 +220,11 @@ export default function GoldSightDashboard() {
                       </TabsTrigger>
                       <TabsTrigger value="live" className="flex items-center gap-2">
                         <Globe className="h-4 w-4" />
-                        TradingView Feed
+                        Live Feed
                       </TabsTrigger>
                     </TabsList>
                     <Badge variant="outline" className="text-xs text-muted-foreground border-border">
-                      Last Updated: {new Date().toLocaleDateString()} {new Date().toLocaleTimeString()}
+                      Market Status: {new Date().toLocaleDateString()}
                     </Badge>
                   </div>
 
@@ -228,7 +232,7 @@ export default function GoldSightDashboard() {
                     <Card className="bg-card/30 border-border backdrop-blur-sm overflow-hidden">
                       <CardHeader className="pb-2">
                         <CardTitle className="text-lg">Price Performance (2015 - 2026 Projection)</CardTitle>
-                        <p className="text-xs text-muted-foreground">Historical data synced to today with AI predictive overlays</p>
+                        <p className="text-xs text-muted-foreground">Anchored to ATH $5,602 and Current $4,964</p>
                       </CardHeader>
                       <CardContent>
                         <HistoricalChart historicalData={historicalData} forecastData={forecastData} />
@@ -282,7 +286,7 @@ export default function GoldSightDashboard() {
                     ) : (
                       <div className="text-center py-10 text-muted-foreground">
                         <BarChart3 className="h-10 w-10 mx-auto mb-3 opacity-20" />
-                        <p className="text-sm px-4">Generate a 2026 forecast to unlock analytical insights and target projections.</p>
+                        <p className="text-sm px-4">Generate a 2026 forecast to unlock detailed analysis based on the current $4,964 support.</p>
                       </div>
                     )}
                   </CardContent>

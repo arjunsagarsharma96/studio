@@ -5,69 +5,84 @@ export interface PricePoint {
 
 /**
  * Generates realistic historical XAUUSD data from 2015 to exactly Today.
- * Calibrated to reach the user's requested market high of ~$4,900.
+ * Calibrated to reach the user's requested market high of $5,602 and current price of $4,964.
  */
 export function generateHistoricalData(): PricePoint[] {
   const startDate = new Date(2015, 0, 1);
   const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+  
   const data: PricePoint[] = [];
 
   // Gold price was around $1,150-$1,200 in early 2015
   let currentPrice = 1180;
   const currentDate = new Date(startDate);
 
-  // Helper to get target price based on year to simulate requested trends
-  // Adjusted to reach ~$4,900 by late 2024/early 2025
-  const getTargetPrice = (year: number) => {
+  // Milestone targets to shape the curve
+  const getTargetPrice = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    
+    // Historical context
     if (year <= 2016) return 1250;
     if (year <= 2018) return 1350;
-    if (year <= 2020) return 2050;
-    if (year <= 2022) return 1950;
-    if (year <= 2023) return 2200;
-    if (year <= 2024) return 4200;
-    return 4900; // Targeting user's requested market level for current day
+    if (year <= 2020) return 1950;
+    if (year <= 2022) return 1850;
+    if (year <= 2023) return 2100;
+    
+    // 2024 - Reaching the requested All-Time High of 5602 (e.g., around mid-2024)
+    if (year === 2024 && month < 8) return 5602;
+    
+    // Present - Retracing to the requested price of 4964
+    return 4964;
   };
 
   while (currentDate <= today) {
-    const year = currentDate.getFullYear();
-    const target = getTargetPrice(year);
+    const target = getTargetPrice(currentDate);
     
     // Calculate a drift towards the target price
-    const drift = (target - currentPrice) / 365; 
-    const volatility = (Math.random() - 0.5) * 12; // Reduced volatility for a smoother trend
+    const drift = (target - currentPrice) / 180; // Faster adjustment for the recent surge
+    const volatility = (Math.random() - 0.5) * 15; 
     
     currentPrice += drift + volatility;
 
     // Minimum price floor
     if (currentPrice < 1000) currentPrice = 1000;
 
-    // We only need monthly points for performance in older history
-    // But daily points for the most recent 60 days to ensure "up to date" looks crisp
+    // Filter for performance: Monthly for old history, daily for last 90 days
     const diffDays = Math.floor((today.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
     
-    if (diffDays < 60 || currentDate.getDate() === 1) {
+    if (diffDays < 90 || currentDate.getDate() === 1) {
       data.push({
         date: currentDate.toISOString().split('T')[0],
         price: parseFloat(currentPrice.toFixed(2)),
       });
     }
 
-    // Increment date
     currentDate.setDate(currentDate.getDate() + 1);
   }
 
-  // FORCE the final point to be Today's actual date to solve the "old data" issue
+  // FORCE the penultimate point to be Yesterday's requested price of 4964
+  const yesterdayStr = yesterday.toISOString().split('T')[0];
   const lastDateStr = today.toISOString().split('T')[0];
-  const lastPointIndex = data.findIndex(p => p.date === lastDateStr);
   
-  if (lastPointIndex === -1) {
-    data.push({
-      date: lastDateStr,
-      price: parseFloat(currentPrice.toFixed(2)),
-    });
+  // Find or Add yesterday
+  const yIndex = data.findIndex(p => p.date === yesterdayStr);
+  if (yIndex !== -1) {
+    data[yIndex].price = 4964;
   } else {
-    // Ensure the last point is exactly the current day's price
-    data[lastPointIndex].price = parseFloat(currentPrice.toFixed(2));
+    data.push({ date: yesterdayStr, price: 4964 });
+  }
+
+  // Ensure data is sorted by date
+  data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+  // Ensure the absolute last point is also close to current trading price
+  if (data[data.length - 1].date !== lastDateStr) {
+    data.push({ date: lastDateStr, price: 4964.50 });
+  } else {
+    data[data.length - 1].price = 4964.50;
   }
 
   return data;
@@ -83,7 +98,7 @@ export function parseCSVToPricePoints(csv: string): PricePoint[] {
   if (!csv) return [];
   const lines = csv.trim().split("\n");
   if (lines.length <= 1) return [];
-  const dataLines = lines.slice(1); // Remove header
+  const dataLines = lines.slice(1);
   return dataLines.map(line => {
     const parts = line.split(",");
     if (parts.length < 2) return null;
