@@ -4,19 +4,19 @@ export interface PricePoint {
 }
 
 /**
- * Generates realistic historical XAUUSD data from 2015 to exactly Today.
+ * Generates realistic historical XAUUSD data from a dynamic Start Year to exactly Today.
  * Calibrated to reach the user's requested market high of $5,602 and current price of $4,964.
  */
-export function generateHistoricalData(): PricePoint[] {
-  const startDate = new Date(2015, 0, 1);
+export function generateHistoricalData(startYear: number = 2015): PricePoint[] {
+  const startDate = new Date(startYear, 0, 1);
   const today = new Date();
   const yesterday = new Date();
   yesterday.setDate(today.getDate() - 1);
   
   const data: PricePoint[] = [];
 
-  // Gold price was around $1,150-$1,200 in early 2015
-  let currentPrice = 1180;
+  // Starting price logic based on year
+  let currentPrice = startYear < 2015 ? 1100 : 1180;
   const currentDate = new Date(startDate);
 
   // Milestone targets to shape the curve
@@ -31,7 +31,7 @@ export function generateHistoricalData(): PricePoint[] {
     if (year <= 2022) return 1850;
     if (year <= 2023) return 2100;
     
-    // 2024 - Reaching the requested All-Time High of 5602 (e.g., around mid-2024)
+    // 2024 - Reaching the requested All-Time High of 5602
     if (year === 2024 && month < 8) return 5602;
     
     // Present - Retracing to the requested price of 4964
@@ -42,13 +42,13 @@ export function generateHistoricalData(): PricePoint[] {
     const target = getTargetPrice(currentDate);
     
     // Calculate a drift towards the target price
-    const drift = (target - currentPrice) / 180; // Faster adjustment for the recent surge
+    const drift = (target - currentPrice) / 180; 
     const volatility = (Math.random() - 0.5) * 15; 
     
     currentPrice += drift + volatility;
 
     // Minimum price floor
-    if (currentPrice < 1000) currentPrice = 1000;
+    if (currentPrice < 800) currentPrice = 800;
 
     // Filter for performance: Monthly for old history, daily for last 90 days
     const diffDays = Math.floor((today.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
@@ -67,21 +67,19 @@ export function generateHistoricalData(): PricePoint[] {
   const yesterdayStr = yesterday.toISOString().split('T')[0];
   const lastDateStr = today.toISOString().split('T')[0];
   
-  // Find or Add yesterday
   const yIndex = data.findIndex(p => p.date === yesterdayStr);
   if (yIndex !== -1) {
     data[yIndex].price = 4964;
-  } else {
+  } else if (currentDate > yesterday) {
     data.push({ date: yesterdayStr, price: 4964 });
   }
 
-  // Ensure data is sorted by date
   data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   // Ensure the absolute last point is also close to current trading price
-  if (data[data.length - 1].date !== lastDateStr) {
+  if (data.length > 0 && data[data.length - 1].date !== lastDateStr) {
     data.push({ date: lastDateStr, price: 4964.50 });
-  } else {
+  } else if (data.length > 0) {
     data[data.length - 1].price = 4964.50;
   }
 

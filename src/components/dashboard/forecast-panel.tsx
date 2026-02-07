@@ -12,12 +12,12 @@ import { useToast } from "@/hooks/use-toast";
 
 interface ForecastPanelProps {
   historicalData: PricePoint[];
+  forecastHorizon: number;
   onForecastGenerated: (data: PricePoint[], summary: string, aiSummary: string) => void;
 }
 
-export function ForecastPanel({ historicalData, onForecastGenerated }: ForecastPanelProps) {
+export function ForecastPanel({ historicalData, forecastHorizon, onForecastGenerated }: ForecastPanelProps) {
   const [loading, setLoading] = useState(false);
-  const [horizon, setHorizon] = useState(2026);
   const { toast } = useToast();
 
   async function handleGenerate() {
@@ -27,7 +27,7 @@ export function ForecastPanel({ historicalData, onForecastGenerated }: ForecastP
       
       const result = await generatePriceForecast({
         historicalData: csvData,
-        forecastHorizon: horizon
+        forecastHorizon: forecastHorizon
       });
 
       const parsedForecast = parseCSVToPricePoints(result.forecastData);
@@ -40,7 +40,7 @@ export function ForecastPanel({ historicalData, onForecastGenerated }: ForecastP
       
       toast({
         title: "Forecast Generated",
-        description: "AI has successfully projected prices up to 2026.",
+        description: `AI has successfully projected prices up to Dec ${forecastHorizon}.`,
       });
     } catch (error) {
       console.error(error);
@@ -65,25 +65,25 @@ export function ForecastPanel({ historicalData, onForecastGenerated }: ForecastP
           <Badge variant="outline" className="border-primary text-primary">v2.5 Flash</Badge>
         </div>
         <CardDescription>
-          Generate XAUUSD price forecasts up to 2026 based on patterns from 2015-present.
+          Project XAUUSD patterns into the future based on your selected window.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="p-4 rounded-lg bg-muted/30 border border-muted flex items-start gap-3">
           <AlertCircle className="h-5 w-5 text-accent shrink-0 mt-0.5" />
           <p className="text-sm text-muted-foreground">
-            Our models analyze historical volatility and macroeconomic indicators provided in the dataset to predict future resistance levels.
+            Analysis is currently tuned to a target horizon of {forecastHorizon}. Changes to the sidebar will update this focus.
           </p>
         </div>
         
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-muted-foreground uppercase">Dataset Scope</label>
-            <p className="text-sm font-medium">2015 - {new Date().getFullYear()}</p>
+            <label className="text-xs font-semibold text-muted-foreground uppercase">Historical Baseline</label>
+            <p className="text-sm font-medium">{historicalData.length > 0 ? historicalData[0].date.split('-')[0] : '---'} - Present</p>
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-muted-foreground uppercase">Target Horizon</label>
-            <p className="text-sm font-medium">December 2026</p>
+            <label className="text-xs font-semibold text-muted-foreground uppercase">Target Exit</label>
+            <p className="text-sm font-medium">Dec {forecastHorizon}</p>
           </div>
         </div>
       </CardContent>
@@ -98,7 +98,7 @@ export function ForecastPanel({ historicalData, onForecastGenerated }: ForecastP
           ) : (
             <Sparkles className="h-4 w-4 mr-2" />
           )}
-          Generate 2026 Forecast
+          Generate {forecastHorizon} Forecast
         </Button>
       </CardFooter>
     </Card>
