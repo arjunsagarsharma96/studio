@@ -46,11 +46,17 @@ const prompt = ai.definePrompt({
   prompt: `You are an expert financial analyst specializing in XAUUSD price forecasting.
 
   Based on the provided historical XAUUSD price data, generate a price forecast up to the year {{{forecastHorizon}}}.
+  
+  CONTEXT:
+  - Current Price: $4,964 (as of yesterday).
+  - All-Time High: $5,602 (reached recently).
+  - The model should respect the current support at $4,964.
 
   Historical Data:\n{{{historicalData}}}
 
-  Provide the forecast data in CSV format with columns Date and Price. Also, include a brief summary of the forecast.
-  `, // Ensure triple braces for historicalData
+  Provide the forecast data in CSV format with columns Date and Price. Use monthly intervals for the forecast.
+  Also, include a brief summary of the forecast explaining why the AI expects the price to move from the current $4,964 level.
+  `,
 });
 
 const generatePriceForecastFlow = ai.defineFlow(
