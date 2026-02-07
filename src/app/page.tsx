@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { generateHistoricalData, PricePoint } from "@/lib/historical-data";
 import { HistoricalChart } from "@/components/dashboard/historical-chart";
 import { ForecastPanel } from "@/components/dashboard/forecast-panel";
@@ -28,18 +28,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { 
   BarChart3, 
   Coins, 
-  Download, 
   LayoutDashboard, 
-  Settings, 
   Save,
   Activity,
   ArrowUpRight,
   TrendingUp,
-  LineChart as LineChartIcon,
   Globe,
   Clock,
   History,
-  Calendar as CalendarIcon
+  Calendar as CalendarIcon,
+  RefreshCw
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -55,17 +53,21 @@ export default function GoldSightDashboard() {
   const [forecastSummary, setForecastSummary] = useState<string>("");
   const [aiTrends, setAiTrends] = useState<string>("");
   const [savedModels, setSavedModels] = useState<SavedModel[]>([]);
+  const [isSyncing, setIsSyncing] = useState(false);
+  
   const { toast } = useToast();
 
+  // Initialize and update historical data
   useEffect(() => {
     setHistoricalData(generateHistoricalData(startYear));
   }, [startYear]);
 
-  const handleForecastGenerated = (data: PricePoint[], summary: string, trends: string) => {
+  const handleForecastGenerated = useCallback((data: PricePoint[], summary: string, trends: string) => {
     setForecastData(data);
     setForecastSummary(summary);
     setAiTrends(trends);
-  };
+    setIsSyncing(false);
+  }, []);
 
   const handleSaveModel = () => {
     if (forecastData.length === 0) {
@@ -89,8 +91,8 @@ export default function GoldSightDashboard() {
     });
   };
 
-  const latestPrice = historicalData.length > 0 ? historicalData[historicalData.length - 1].price : 4964;
-  const prevPrice = historicalData.length > 1 ? historicalData[historicalData.length - 2].price : 4960;
+  const latestPrice = historicalData.length > 0 ? historicalData[historicalData.length - 1].price : 4964.50;
+  const prevPrice = historicalData.length > 1 ? historicalData[historicalData.length - 2].price : 4964.00;
   const priceChange = latestPrice - prevPrice;
   const priceChangePercent = (priceChange / prevPrice) * 100;
 
@@ -173,6 +175,12 @@ export default function GoldSightDashboard() {
                 <CalendarIcon className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm font-medium text-muted-foreground">{startYear} - {forecastHorizon}</span>
               </div>
+              {isSyncing && (
+                <div className="flex items-center gap-2 text-primary animate-pulse">
+                  <RefreshCw className="h-3 w-3 animate-spin" />
+                  <span className="text-[10px] font-bold uppercase tracking-widest">Auto-Generating Analysis...</span>
+                </div>
+              )}
             </div>
 
             <div className="flex items-center gap-3">
@@ -246,7 +254,7 @@ export default function GoldSightDashboard() {
                       </TabsTrigger>
                       <TabsTrigger value="live" className="flex items-center gap-2">
                         <Globe className="h-4 w-4" />
-                        Live Feed
+                        Live Feed (TradingView)
                       </TabsTrigger>
                     </TabsList>
                     <Badge variant="outline" className="text-xs text-muted-foreground border-border">
@@ -297,6 +305,8 @@ export default function GoldSightDashboard() {
                   historicalData={historicalData} 
                   forecastHorizon={forecastHorizon}
                   onForecastGenerated={handleForecastGenerated} 
+                  autoTrigger={true}
+                  onTriggering={() => setIsSyncing(true)}
                 />
                 
                 <Card className="bg-card/40 border-border">
