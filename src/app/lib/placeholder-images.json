@@ -1,0 +1,17 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "gold-bars",
+      "description": "Close-up of shiny gold bars stacked together",
+      "imageUrl": "https://picsum.photos/seed/gold123/1200/800",
+      "imageHint": "gold bars"
+    },
+    {
+      "id": "financial-chart",
+      "description": "Digital financial chart showing market trends",
+      "imageUrl": "https://picsum.photos/seed/chart456/800/600",
+      "imageHint": "stock chart"
+    }
+  ]
+}
