@@ -11,6 +11,11 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
+const ForecastPointSchema = z.object({
+  date: z.string().describe('Date in YYYY-MM-DD format.'),
+  price: z.number().describe('The forecasted price of Gold.'),
+});
+
 const GeneratePriceForecastInputSchema = z.object({
   historicalData: z
     .string()
@@ -23,12 +28,8 @@ const GeneratePriceForecastInputSchema = z.object({
 export type GeneratePriceForecastInput = z.infer<typeof GeneratePriceForecastInputSchema>;
 
 const GeneratePriceForecastOutputSchema = z.object({
-  forecastData: z
-    .string()
-    .describe('XAUUSD price forecast data in CSV format.'),
-  summary: z
-    .string()
-    .describe('A summary of the XAUUSD price forecast.'),
+  forecastData: z.array(ForecastPointSchema).describe('An array of forecasted price points.'),
+  summary: z.string().describe('A summary of the XAUUSD price forecast.'),
 });
 
 export type GeneratePriceForecastOutput = z.infer<typeof GeneratePriceForecastOutputSchema>;
@@ -43,9 +44,17 @@ const prompt = ai.definePrompt({
   name: 'generatePriceForecastPrompt',
   input: {schema: GeneratePriceForecastInputSchema},
   output: {schema: GeneratePriceForecastOutputSchema},
+  config: {
+    safetySettings: [
+      { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
+    ]
+  },
   prompt: `You are an expert financial analyst specializing in XAUUSD price forecasting.
 
-  Based on the provided historical XAUUSD price data (sourced from the TradingView Advanced Data Feed), generate a price forecast up to the year {{{forecastHorizon}}}.
+  Based on the provided historical XAUUSD price data (sourced from the TradingView Advanced Data Feed), generate a monthly price forecast up to December of the year {{{forecastHorizon}}}.
   
   CRITICAL CONTEXT FROM TRADINGVIEW:
   - Current Spot Price: $4,964 (Stable Support).
@@ -54,8 +63,7 @@ const prompt = ai.definePrompt({
 
   TradingView Historical Dataset (CSV):\n{{{historicalData}}}
 
-  Provide the forecast data in CSV format with columns Date and Price. Use monthly intervals for the forecast.
-  Also, include a brief summary explaining the AI's reasoning for the trajectory starting from the $4,964 level, considering global economic factors and technical indicators.
+  Include a brief summary explaining the AI's reasoning for the trajectory starting from the $4,964 level, considering global economic factors and technical indicators.
   `,
 });
 

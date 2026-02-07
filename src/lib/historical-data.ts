@@ -33,10 +33,10 @@ export function generateHistoricalData(startYear: number = 2015): PricePoint[] {
     if (year <= 2023) return 2100;
     
     // 2024 Milestone - Reaching the requested All-Time High of $5,602
-    if (year === 2024 && month < 8) return 5,602;
+    if (year === 2024 && month < 8) return 5602;
     
     // Present - Retracing to the requested trading price of $4,964
-    return 4,964;
+    return 4964;
   };
 
   while (currentDate <= today) {

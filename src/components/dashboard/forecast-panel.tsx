@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { generatePriceForecast } from "@/ai/flows/generate-price-forecast";
 import { summarizeMarketTrends } from "@/ai/flows/summarize-market-trends";
-import { PricePoint, pricePointsToCSV, parseCSVToPricePoints } from "@/lib/historical-data";
-import { Sparkles, Loader2, TrendingUp, AlertCircle, RefreshCcw, Activity } from "lucide-react";
+import { PricePoint, pricePointsToCSV } from "@/lib/historical-data";
+import { Sparkles, Loader2, TrendingUp, Activity, RefreshCcw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 
@@ -42,24 +42,30 @@ export function ForecastPanel({
         forecastHorizon: forecastHorizon
       });
 
-      const parsedForecast = parseCSVToPricePoints(result.forecastData);
+      if (!result || !result.forecastData) {
+        throw new Error("Invalid response from AI");
+      }
+
+      // Convert the structured forecast points to a CSV-like string for the summary flow if needed
+      // but the trend flow now takes a string, so we'll just summarize the forecast summary or the data
+      const forecastCSVForTrend = result.forecastData.map(p => `${p.date},${p.price}`).join("\n");
       
       const trendSummary = await summarizeMarketTrends({
-        forecastData: result.forecastData
+        forecastData: forecastCSVForTrend
       });
 
-      onForecastGenerated(parsedForecast, result.summary, trendSummary.summary);
+      onForecastGenerated(result.forecastData, result.summary, trendSummary.summary);
       
       toast({
         title: "Intelligence Synced",
         description: `Market data from TradingView integrated with ${forecastHorizon} AI models.`,
       });
     } catch (error) {
-      console.error(error);
+      console.error("Sync Error:", error);
       toast({
         variant: "destructive",
         title: "Sync Failed",
-        description: "There was an error communicating with the AI model.",
+        description: "There was an error communicating with the AI model. Please try again.",
       });
     } finally {
       setLoading(false);
@@ -71,10 +77,10 @@ export function ForecastPanel({
     if (autoTrigger && historicalData.length > 0) {
       const timer = setTimeout(() => {
         handleGenerate();
-      }, 500); // Small debounce for year/horizon changes
+      }, 800); // Slightly increased debounce for stability
       return () => clearTimeout(timer);
     }
-  }, [historicalData, forecastHorizon, autoTrigger]);
+  }, [historicalData, forecastHorizon, autoTrigger, handleGenerate]);
 
   return (
     <Card className="bg-card/50 border-border shadow-lg">
